@@ -20,7 +20,7 @@
 }
 
 .card {
-  width: 150px;
+  width: 250px;
   margin: 10px;
   padding: 10px;
   border: 1px solid #ccc;
@@ -29,6 +29,26 @@
 }
 
 img {
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
 }
+
+h1 {
+  text-align: center;
+  background-color: rgb(214, 32, 32);
+  color: white;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px; /* Ajusta el margen inferior según sea necesario */
+}
+
+.search-container input,
+.search-container button {
+  margin-right: 10px;
+  border-radius: 100px; /* Ajusta el espacio entre el input y el botón según sea necesario */
+}
+

@@ -2,14 +2,14 @@ import React from 'react';
 
 const Buscador = ({ searchTerm, onSearch, onSort }) => {
   return (
-    <div>
+    <div className="search-container">
       <input
         type="text"
-        placeholder="Search Pokemon"
+        placeholder="Buscar Pokemon"
         value={searchTerm}
         onChange={onSearch}
       />
-      <button onClick={onSort}>Sort Alphabetically</button>
+      <button onClick={onSort}>Ordenar alfabeticamente</button>
     </div>
   );
 }
