@@ -7,6 +7,7 @@ const MiApi = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sorted, setSorted] = useState(false);
   const [pokemonDetails, setPokemonDetails] = useState({});
+  const [loading, setLoading] = useState(true);
   const [noResults, setNoResults] = useState(false);
 
   useEffect(() => {
@@ -15,25 +16,29 @@ const MiApi = () => {
         const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100');
         const data = response.data.results;
         setPokemonData(data);
+        setLoading(false);
+  
+        const detailsPromises = data.map(async pokemon => {
+          const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`);
+          const { abilities, id } = response.data;
+          const abilitiesList = abilities.map(ability => ability.ability.name).join(', ');
+          return { name: pokemon.name, abilities: abilitiesList, number: id };
+        });
+  
+        const pokemonDetails = await Promise.all(detailsPromises);
+        const detailsMap = pokemonDetails.reduce((acc, curr) => {
+          acc[curr.name] = { abilities: curr.abilities, number: curr.number };
+          return acc;
+        }, {});
+        
+        setPokemonDetails(detailsMap);
       } catch (error) {
         console.error('Error fetching Pokemon data:', error);
       }
     };
-
+  
     fetchData();
   }, []);
-
-  const fetchPokemonDetails = async (name) => {
-    try {
-      const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`);
-      const abilities = response.data.abilities.map(ability => ability.ability.name).join(', ');
-      const number = response.data.id;
-      return { abilities, number };
-    } catch (error) {
-      console.error('Error fetching Pokemon details:', error);
-      return { abilities: '', number: '' };
-    }
-  };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -53,24 +58,8 @@ const MiApi = () => {
   };
 
   useEffect(() => {
-    const fetchDetails = async () => {
-      const details = {};
-      for (const pokemon of pokemonData) {
-        const { abilities, number } = await fetchPokemonDetails(pokemon.name);
-        details[pokemon.name] = { abilities, number };
-      }
-      setPokemonDetails(details);
-    };
-
-    fetchDetails();
-  }, [pokemonData]);
-
-  useEffect(() => {
-    if (pokemonData.length > 0 && sortPokemon().length === 0) {
-      setNoResults(true);
-    } else {
-      setNoResults(false);
-    }
+    // Verifica si hay resultados de búsqueda y actualiza el estado correspondiente
+    setNoResults(sortPokemon().length === 0);
   }, [pokemonData, searchTerm, sorted]);
 
   return (
@@ -81,13 +70,17 @@ const MiApi = () => {
         onSort={handleSort}
       />
       <div className="container">
-        {noResults ? (
+        {loading ? (
+          <div className="center">
+            <p className="loading">Cargando...</p>
+          </div>
+        ) : noResults ? (
           <div className="center">
             <p className="no-results">No hay coincidencias</p>
           </div>
         ) : (
           sortPokemon().map((pokemon, index) => (
-            <div key={index} className="card">
+            <div key={pokemon.name} className="card">
               <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonDetails[pokemon.name]?.number}.png`} alt={pokemon.name} />
               <h3>{pokemon.name}</h3>
               <p>Abilities: {pokemonDetails[pokemon.name]?.abilities}</p>
