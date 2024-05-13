@@ -7,6 +7,7 @@ const MiApi = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sorted, setSorted] = useState(false);
   const [pokemonDetails, setPokemonDetails] = useState({});
+  const [noResults, setNoResults] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,6 +37,7 @@ const MiApi = () => {
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    setNoResults(false);
   };
 
   const handleSort = () => {
@@ -63,6 +65,14 @@ const MiApi = () => {
     fetchDetails();
   }, [pokemonData]);
 
+  useEffect(() => {
+    if (pokemonData.length > 0 && sortPokemon().length === 0) {
+      setNoResults(true);
+    } else {
+      setNoResults(false);
+    }
+  }, [pokemonData, searchTerm, sorted]);
+
   return (
     <div>
       <Buscador
@@ -71,13 +81,19 @@ const MiApi = () => {
         onSort={handleSort}
       />
       <div className="container">
-        {sortPokemon().map((pokemon, index) => (
-          <div key={index} className="card">
-            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonDetails[pokemon.name]?.number}.png`} alt={pokemon.name} />
-            <h3>{pokemon.name}</h3>
-            <p>Abilities: {pokemonDetails[pokemon.name]?.abilities}</p>
+        {noResults ? (
+          <div className="center">
+            <p className="no-results">No hay coincidencias</p>
           </div>
-        ))}
+        ) : (
+          sortPokemon().map((pokemon, index) => (
+            <div key={index} className="card">
+              <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonDetails[pokemon.name]?.number}.png`} alt={pokemon.name} />
+              <h3>{pokemon.name}</h3>
+              <p>Abilities: {pokemonDetails[pokemon.name]?.abilities}</p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
