@@ -22,7 +22,10 @@ const MiApi = () => {
           const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`);
           const { abilities, id } = response.data;
           const abilitiesList = abilities.map(ability => ability.ability.name).join(', ');
-          return { name: pokemon.name, abilities: abilitiesList, number: id };
+          return { 
+            name: pokemon.name, 
+            abilities: abilitiesList, 
+            number: id };
         });
   
         const pokemonDetails = await Promise.all(detailsPromises);
@@ -58,7 +61,6 @@ const MiApi = () => {
   };
 
   useEffect(() => {
-    // Verifica si hay resultados de búsqueda y actualiza el estado correspondiente
     setNoResults(sortPokemon().length === 0);
   }, [pokemonData, searchTerm, sorted]);
 
